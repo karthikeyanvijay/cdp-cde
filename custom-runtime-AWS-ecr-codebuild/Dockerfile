@@ -1,0 +1,5 @@
+ARG BASE_IMAGE
+FROM $BASE_IMAGE
+USER root
+RUN dnf install -y git
+USER 1345

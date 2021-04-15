@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey": "ProjectPrefix",
+    "ParameterValue": "cde"
+  },
+  {
+    "ParameterKey": "ECRRepo1Name",
+    "ParameterValue": "cde/cde-spark-runtime-2.4.5"
+  },
+  {
+    "ParameterKey": "S3BucketForArtifacts",
+    "ParameterValue": "vkarthikeyan-cdp"
+  }
+]

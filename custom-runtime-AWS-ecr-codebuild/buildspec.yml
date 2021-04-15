@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - docker login https://container.repository.cloudera.com -u $SOURCE_REPO_USERNAME -p $SOURCE_REPO_PASSWORD
+      - export TARGET_IMAGE_TAG=$SOURCE_IMAGE_TAG-$TARGET_IMAGE_TAG_SUFFIX
+  build:
+    commands:
+      - echo Started building the custom docker image at `date`...
+      - echo Base image for this build is $SOURCE_IMAGE_REPO:$SOURCE_IMAGE_TAG       
+      - docker build -t $TARGET_IMAGE_REPO:$TARGET_IMAGE_TAG . --build-arg BASE_IMAGE=$SOURCE_IMAGE_REPO:$SOURCE_IMAGE_TAG
+      - docker tag $TARGET_IMAGE_REPO:$TARGET_IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$TARGET_IMAGE_REPO:$TARGET_IMAGE_TAG  
+  post_build:
+    commands:
+      - echo Build completed on `date`...
+      - echo Pushing the Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$TARGET_IMAGE_REPO:$TARGET_IMAGE_TAG
+      - echo Successfully pushed the custom docker image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$TARGET_IMAGE_REPO:$TARGET_IMAGE_TAG

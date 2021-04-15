@@ -1,0 +1,53 @@
+{
+  "name": "cde-ml-xgboost-build",
+  "source": {
+    "type": "S3",
+    "location": "vkarthikeyan-cdp/cde-image-build.zip"
+  },
+  "artifacts": {
+    "type": "NO_ARTIFACTS"
+  },
+  "environment": {
+    "type": "LINUX_CONTAINER",
+    "image": "aws/codebuild/standard:5.0",
+    "computeType": "BUILD_GENERAL1_MEDIUM",
+    "environmentVariables": [
+      {
+        "name": "AWS_DEFAULT_REGION",
+        "value": "us-west-2"
+      },
+      {
+        "name": "AWS_ACCOUNT_ID",
+        "value": "268282262010"
+      },
+      {
+        "name": "SOURCE_IMAGE_REPO",
+        "value": "container.repository.cloudera.com/cloudera/dex/dex-spark-runtime-2.4.5"
+      },
+      {
+        "name": "SOURCE_IMAGE_TAG",
+        "value": "1.6.0-b134"
+      },
+      {
+        "name": "SOURCE_REPO_USERNAME",
+        "value": "cde-cloudera-repo:username",
+        "type": "SECRETS_MANAGER"
+      },
+      {
+        "name": "SOURCE_REPO_PASSWORD",
+        "value": "cde-cloudera-repo:password",
+        "type": "SECRETS_MANAGER"
+      },
+      {
+        "name": "TARGET_IMAGE_REPO",
+        "value": "cde/cde-spark-runtime-2.4.5"
+      },
+      {
+        "name": "TARGET_IMAGE_TAG_SUFFIX",
+        "value": "ml-xgboost"
+      }
+    ],
+    "privilegedMode": true
+  },
+  "serviceRole": "arn:aws:iam::268282262010:role/cde-build-automation-role"
+}

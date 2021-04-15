@@ -1,0 +1,159 @@
+Description:  Setup automation resources required for CDP
+
+Parameters:
+  ProjectPrefix:
+    Type: String
+    Default: cde
+    Description: Prefix used for resource names & for permissions
+  ECRRepo1Name:
+    Type: String
+    Default: cde/cde-spark-runtime-2.4.5
+    Description: ECR Repo 1 Name
+  S3BucketForArtifacts:
+    Type: String
+    Default: vkarthikeyan-cdp
+    Description: S3 Bucket for Artifacts
+
+Resources:
+  ECRRepo1: 
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: !Ref ECRRepo1Name
+      ImageScanningConfiguration: 
+        ScanOnPush: "false"
+      ImageTagMutability: MUTABLE
+
+  BuildAutomationRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Description: Allow assume role for Codebuild
+      Policies:
+        - PolicyName: ECRPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                - imagebuilder:GetComponent
+                - imagebuilder:GetContainerRecipe
+                - ecr:GetAuthorizationToken
+                - ecr:BatchGetImage
+                - ecr:InitiateLayerUpload
+                - ecr:UploadLayerPart
+                - ecr:CompleteLayerUpload
+                - ecr:BatchCheckLayerAvailability
+                - ecr:GetDownloadUrlForLayer
+                - ecr:PutImage
+                Resource:
+                  - !GetAtt ECRRepo1.Arn
+                  - "*" # Need to support aws ecr get-login-password
+        - PolicyName: CodeBuildSecretsManagerPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'secretsmanager:GetSecretValue'
+                Resource:
+                  - !Join 
+                    - ''
+                    - - !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:'
+                      - !Ref ProjectPrefix
+                      - '*'
+        - PolicyName: CodeBuildBasePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - !Join 
+                    - ''
+                    - - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/'
+                      - !Ref ProjectPrefix
+                      - '*'
+                Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              - Effect: Allow
+                Resource:
+                - arn:aws:s3:::codepipeline*
+                Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:GetObjectVersion
+                - s3:GetBucketAcl
+                - s3:GetBucketLocation
+              - Effect: Allow
+                Action:
+                - codebuild:CreateReportGroup
+                - codebuild:CreateReport
+                - codebuild:UpdateReport
+                - codebuild:BatchPutTestCases
+                - codebuild:BatchPutCodeCoverages
+                Resource:
+                  - !Join 
+                    - ''
+                    - - !Sub 'arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/'
+                      - !Ref ProjectPrefix
+                      - '*'
+        - PolicyName: CodeBuildS3ReadOnlyPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                - s3:GetObject
+                - s3:GetObjectVersion
+                Resource:
+                  - !Join 
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - !Select 
+                        - '0'
+                        - !Split 
+                          - /
+                          - !Ref S3BucketForArtifacts
+                  - !Join 
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - !Select 
+                        - '0'
+                        - !Split 
+                          - /
+                          - !Ref S3BucketForArtifacts
+                      - /*
+              - Effect: Allow
+                Resource:
+                  - !Join 
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - !Select 
+                        - '0'
+                        - !Split 
+                          - /
+                          - !Ref S3BucketForArtifacts
+                Action:
+                - s3:ListBucket
+                - s3:GetBucketAcl
+                - s3:GetBucketLocation
+      RoleName: !Join 
+        - '-'
+        - - !Ref ProjectPrefix
+          - build-automation-role
+
+Outputs:    
+  ECRRepo1:
+    Description: ECRRepo1
+    Value: !GetAtt ECRRepo1.Arn
+
+  BuildAutomationRole:
+    Description: BuildAutomationRole ARN
+    Value: !GetAtt BuildAutomationRole.Arn
