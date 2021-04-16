@@ -49,5 +49,5 @@
     ],
     "privilegedMode": true
   },
-  "serviceRole": "arn:aws:iam::268282262010:role/cde-build-automation-role"
+  "serviceRole": "arn:aws:iam::123456789012:role/cde-build-automation-role"
 }

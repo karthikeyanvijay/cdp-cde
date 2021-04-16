@@ -53,5 +53,31 @@ aws cloudformation execute-change-set --change-set-name change1 --stack-name vka
 ### Amazon ECR
 ![ecr.png](images/ecr.png)
 
-## CDE Upgrade scenario
-!!! NOT TESTED !!! If you are looking to update the resource names for a CDE upgrade, use the script `cde-runtime-image-update.sh`
+
+## Run CDE job with the custom runtime image
+- First create a resource of type `custom-runtime-image`
+    ```
+    cde resource create --type="custom-runtime-image" \
+        --image-engine="spark2" \
+        --name="cde-runtime-ml" \
+        --image="123456789012.dkr.ecr.us-west-2.amazonaws.com/cde/cde-spark-runtime-2.4.5:ml-xgboost"
+    ```
+- Create a job using the newly created resource
+    ```
+    cde job create --type spark --name ml-scoring-job \
+        --runtime-image-resource-name cde-runtime-ml \
+            --application-file ./ml-scoring.py \
+            --num-executors 30 \
+            --executor-memory 4G \
+        --driver-memory 4G
+    ```
+- Execute the job
+    ```
+    cde job run --name ml-scoring-job
+    ```
+
+
+## CDE Upgrade scenario  
+!!! NOT TESTED !!! 
+If you are looking to update the resource names for a CDE upgrade, 
+use the script `cde-runtime-image-update.sh`
