@@ -1,6 +1,6 @@
 # PySpark with custom Python dependencies
 
-## Option to include dependencies in each job
+## 2a - Option to include dependencies in each job
 
 ```
 cde spark submit pyspark-example-2a.py \
@@ -14,7 +14,7 @@ cde spark submit pyspark-example-2a.py \
 	--hide-logs
 ```
 
-## Create a resource & attach it to jobs
+## 2b - Create a resource & attach it to jobs
 - Commnads to create a resource for the application file & dependent files
 ```
 # Create a resource for the application file
