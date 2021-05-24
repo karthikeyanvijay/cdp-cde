@@ -1,0 +1,7 @@
+username="vkarthikeyan"
+BACKUP_FILE_PREFIX="vc1"
+BACKUP_FILE_NAME=${BACKUP_FILE_PREFIX}_source_export.zip
+SOURCE_VC=g5267yru.cde-882t0sld.psacdpde.txab-0j09.cloudera.site
+SOURCE_SVC=service.cde-882t0sld.psacdpde.txab-0j09.cloudera.site
+TARGET_VC=yjkyknjg.cde-va0b2f8p.psacdpde.txab-0j09.cloudera.site
+TARGET_SVC=service.cde-va0b2f8p.psacdpde.txab-0j09.cloudera.site
