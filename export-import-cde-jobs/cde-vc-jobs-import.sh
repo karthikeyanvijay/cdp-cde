@@ -33,3 +33,8 @@ TARGET_TOKEN=$(curl -s --user ${USERNAME} -k https://$TARGET_SERVICE/gateway/aut
 
 #### Import jobs
 curl -k -H "Authorization: Bearer ${TARGET_TOKEN}" -X POST "$TARGET_VCAPIURL/admin/import" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "file=@./${FILE_NAME};type=application/zip" -F duplicatehandling=error
+if [ $? -eq 0 ]; then
+    echo "Jobs import to CDE service ${TARGET_CLUSTER_NAME}, virtual cluster ${TARGET_VC_NAME} succeeded"
+else
+    echo "Job import failed"
+fi
